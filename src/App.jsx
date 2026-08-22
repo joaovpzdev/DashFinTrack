@@ -1,7 +1,15 @@
-import { Button } from "./components/ui/button";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import SignupPage from './pages/signup';
 
 const App = () => {
-  return <Button className="bg-primary-blue"> Hello world </Button>
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SignupPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 };
 
 export default App;
