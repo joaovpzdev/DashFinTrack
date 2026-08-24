@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 import { toast } from '../components/ui/sonner';
 import api from '../lib/axios';
@@ -10,8 +10,11 @@ export const AuthContext = createContext({
   signup: () => {},
 });
 
+export const useAuthContext = () => useContext(AuthContext);
+
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+
   const signupMutation = useMutation({
     mutationKey: ['signup'],
     mutationFn: async (variables) => {
