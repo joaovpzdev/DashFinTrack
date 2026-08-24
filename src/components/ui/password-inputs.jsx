@@ -1,8 +1,8 @@
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { forwardRef, useState } from 'react';
 
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
+import { Button } from './button';
+import { Input } from './input';
 
 const PasswordInput = forwardRef(
   ({ placeholder = 'Digite sua senha', ...props }, ref) => {
