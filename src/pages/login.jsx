@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, Navigate  } from 'react-router-dom';
 import { z } from 'zod';
 
 import { Button } from '../components/ui/button';
@@ -40,7 +40,7 @@ const loginSchema = z.object({
 });
 
 const LoginPage = () => {
-  const { user, login } = useAuthContext();
+  const { user, login, isInitializing } = useAuthContext();
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -52,17 +52,9 @@ const LoginPage = () => {
 
   const handleSubmit = (data) => login(data);
 
+  if (isInitializing) return null;
   if (user) {
-    return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
-        <Card className="w-[500px]">
-          <CardHeader>
-            <CardTitle>Login realizado com sucesso!</CardTitle>
-            <CardDescription>Você já está logado.</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
+    return <Navigate to="/" />;
   }
 
   return (

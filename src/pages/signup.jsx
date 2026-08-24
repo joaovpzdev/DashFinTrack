@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { z } from 'zod';
 
 import { Button } from '../components/ui/button';
@@ -58,7 +58,7 @@ const signupSchema = z
   });
 
 const SignupPage = () => {
-  const { user, signup } = useAuthContext();
+  const { user, signup, isInitializing } = useAuthContext();
 
   const form = useForm({
     resolver: zodResolver(signupSchema),
@@ -74,19 +74,12 @@ const SignupPage = () => {
 
   const handleSubmit = (data) => signup(data);
 
-  if (user) {
-    return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
-        <Card className="w-[500px]">
-          <CardHeader>
-            <CardTitle>Conta criada com sucesso!</CardTitle>
-            <CardDescription>Você já pode fazer login.</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
+  if (isInitializing) return null;
 
+  if (user) {
+    return <Navigate to="/" />;
+  }
+  
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
       <Form {...form}>

@@ -6,6 +6,7 @@ import api from '../lib/axios';
 
 export const AuthContext = createContext({
   user: null,
+  isInitializing: true,
   login: () => {},
   signup: () => {},
 });
@@ -16,17 +17,18 @@ const LOCAL_STORAGE_ACCESS_TOKEN_KEY = 'accessToken';
 const LOCAL_STORAGE_REFRESH_TOKEN_KEY = 'refreshToken';
 
 const setTokens = (tokens) => {
-     localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, tokens.accessToken);
-     localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY, tokens.refreshToken);
+  localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, tokens.accessToken);
+  localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY, tokens.refreshToken);
 };
 
 const removeTokens = () => {
-     localStorage.removeItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
-     localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY);
+  localStorage.removeItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
+  localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY);
 };
 
 export const AuthContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState();
+  const [isInitializing, setIsInitializing] = useState(true);
 
   const signupMutation = useMutation({
     mutationKey: ['signup'],
@@ -42,21 +44,26 @@ export const AuthContextProvider = ({ children }) => {
       return response.data;
     },
   });
-    const loginMutation = useMutation({
-      mutationKey: ['login'],
-      mutationFn: async (variables) => {
-        const response = await api.post('/auth/login', {
-          email: variables.email,
-          password: variables.password,
-        });
-        return response.data;
-      },
-    });
+  const loginMutation = useMutation({
+    mutationKey: ['login'],
+    mutationFn: async (variables) => {
+      const response = await api.post('/auth/login', {
+        email: variables.email,
+        password: variables.password,
+      });
+      return response.data;
+    },
+  });
   useEffect(() => {
     const init = async () => {
       try {
-        const accessToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
-        const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY);
+        setIsInitializing(true);
+        const accessToken = localStorage.getItem(
+          LOCAL_STORAGE_ACCESS_TOKEN_KEY
+        );
+        const refreshToken = localStorage.getItem(
+          LOCAL_STORAGE_REFRESH_TOKEN_KEY
+        );
         if (!accessToken && !refreshToken) return;
         const response = await api.get('/users/me', {
           headers: {
@@ -65,8 +72,11 @@ export const AuthContextProvider = ({ children }) => {
         });
         setUser(response.data);
       } catch (error) {
+        setUser(null);
         removeTokens();
         console.error('Error initializing user:', error);
+      } finally {
+        setIsInitializing(false);
       }
     };
     init();
@@ -84,19 +94,17 @@ export const AuthContextProvider = ({ children }) => {
     });
   };
   const login = (data) => {
-       loginMutation.mutate(data, {
-         onSuccess: (loggedUser) => {
-           setUser(loggedUser);
-           setTokens(loggedUser.tokens);
-           toast.success('Login realizado com sucesso!');
-         },
-         onError: (error) => {
-           console.error('Login failed:', error);
-         },
-       });
-  }
-
-   
+    loginMutation.mutate(data, {
+      onSuccess: (loggedUser) => {
+        setUser(loggedUser);
+        setTokens(loggedUser.tokens);
+        toast.success('Login realizado com sucesso!');
+      },
+      onError: (error) => {
+        console.error('Login failed:', error);
+      },
+    });
+  };
 
   return (
     <AuthContext.Provider
@@ -104,6 +112,7 @@ export const AuthContextProvider = ({ children }) => {
         user,
         login,
         signup,
+        isInitializing,
       }}
     >
       {children}
