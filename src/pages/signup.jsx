@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
@@ -88,6 +88,27 @@ const SignupPage = () => {
     },
   });
 
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!accessToken && !refreshToken) return
+        const response = await api.get('/users/me', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        setUser(response.data);
+      } catch (error) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        console.error('Error initializing user:', error);
+      }
+    };
+    init();
+  }, []);
+
   const handleSubmit = (data) => {
     signupMutation.mutate(data, {
       onSuccess: (createdUser) => {
@@ -102,7 +123,19 @@ const SignupPage = () => {
         toast.error('Ocorreu um erro ao criar a conta. Tente novamente.');
       },
     });
-  };
+  }
+  if (user) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
+        <Card className="w-[500px]">
+          <CardHeader>
+            <CardTitle>Conta criada com sucesso!</CardTitle>
+            <CardDescription>Você já pode fazer login.</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
