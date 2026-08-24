@@ -7,7 +7,7 @@ import {
 } from '@/constants/local-storage';
 
 import { toast } from '../components/ui/sonner';
-import { api } from '../lib/axios';
+import { protectedApi, publicApi } from '../lib/axios';
 
 export const AuthContext = createContext({
   user: null,
@@ -32,11 +32,10 @@ const removeTokens = () => {
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState();
   const [isInitializing, setIsInitializing] = useState(true);
-
   const signupMutation = useMutation({
     mutationKey: ['signup'],
     mutationFn: async (variables) => {
-      const response = await api.post('/users', {
+      const response = await publicApi.post('/users', {
         firstName: variables.firstName,
         lastName: variables.lastName,
         email: variables.email,
@@ -50,7 +49,7 @@ export const AuthContextProvider = ({ children }) => {
   const loginMutation = useMutation({
     mutationKey: ['login'],
     mutationFn: async (variables) => {
-      const response = await api.post('/auth/login', {
+      const response = await publicApi.post('/auth/login', {
         email: variables.email,
         password: variables.password,
       });
@@ -68,7 +67,7 @@ export const AuthContextProvider = ({ children }) => {
           LOCAL_STORAGE_REFRESH_TOKEN_KEY
         );
         if (!accessToken && !refreshToken) return;
-        const response = await api.get('/users/me');
+        const response = await protectedApi.get('/users/me');
         setUser(response.data);
       } catch (error) {
         setUser(null);
