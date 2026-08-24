@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
@@ -25,8 +24,7 @@ import {
 } from '../components/ui/form';
 import { Input } from '../components/ui/input';
 import PasswordInput from '../components/ui/password-inputs';
-import { toast } from '../components/ui/sonner';
-import api from '../lib/axios';
+import { AuthContext } from '../contexts/auth';
 
 const signupSchema = z.object({
   firstName: z.string().trim().min(1, {
@@ -59,22 +57,7 @@ const signupSchema = z.object({
 });
 
 const SignupPage = () => {
-  const [user, setUser] = useState(null);
-
-  const signupMutation = useMutation({
-    mutationKey: ['signup'],
-    mutationFn: async (variables) => {
-      const response = await api.post('/users', {
-        firstName: variables.firstName,
-        lastName: variables.lastName,
-        email: variables.email,
-        password: variables.password,
-        passwordConfirmation: variables.passwordConfirmation,
-        terms: variables.terms,
-      });
-      return response.data;
-    },
-  });
+  const { user, signup } = useContext(AuthContext);
 
   const form = useForm({
     resolver: zodResolver(signupSchema),
@@ -88,42 +71,8 @@ const SignupPage = () => {
     },
   });
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const accessToken = localStorage.getItem('accessToken');
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!accessToken && !refreshToken) return
-        const response = await api.get('/users/me', {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        setUser(response.data);
-      } catch (error) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        console.error('Error initializing user:', error);
-      }
-    };
-    init();
-  }, []);
+  const handleSubmit = (data) => signup(data);
 
-  const handleSubmit = (data) => {
-    signupMutation.mutate(data, {
-      onSuccess: (createdUser) => {
-        const accessToken = createdUser.tokens.accessToken;
-        const refreshToken = createdUser.tokens.refreshToken;
-        setUser(createdUser);
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        toast.success('Conta criada com sucesso! Faça login para continuar.');
-      },
-      onError: () => {
-        toast.error('Ocorreu um erro ao criar a conta. Tente novamente.');
-      },
-    });
-  }
   if (user) {
     return (
       <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
