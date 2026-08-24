@@ -1,4 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
@@ -23,6 +25,8 @@ import {
 } from '../components/ui/form';
 import { Input } from '../components/ui/input';
 import PasswordInput from '../components/ui/password-inputs';
+import { toast } from '../components/ui/sonner';
+import api from '../lib/axios';
 
 const signupSchema = z.object({
   firstName: z.string().trim().min(1, {
@@ -52,6 +56,23 @@ const signupSchema = z.object({
 });
 
 const SignupPage = () => {
+  const [user, setUser] = useState(null);
+
+  const signupMutation = useMutation({
+    mutationKey: ['signup'],
+    mutationFn: async (variables) => {
+      const response = await api.post('/users', {
+        firstName: variables.firstName,
+        lastName: variables.lastName,
+        email: variables.email,
+        password: variables.password,
+        passwordConfirmation: variables.passwordConfirmation,
+        terms: variables.terms,
+      });
+      return response.data;
+    },
+  });
+
   const form = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -63,9 +84,23 @@ const SignupPage = () => {
       terms: false,
     },
   });
+
   const handleSubmit = (data) => {
-    console.log(data);
+    signupMutation.mutate(data, {
+      onSuccess: (createdUser) => {
+        const accessToken = createdUser.tokens.accessToken;
+        const refreshToken = createdUser.tokens.refreshToken;
+        setUser(createdUser);
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        toast.success('Conta criada com sucesso! Faça login para continuar.');
+      },
+      onError: () => {
+        toast.error('Ocorreu um erro ao criar a conta. Tente novamente.');
+      },
+    });
   };
+
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
       <Form {...form}>
