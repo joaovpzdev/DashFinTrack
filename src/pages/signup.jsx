@@ -53,6 +53,9 @@ const signupSchema = z.object({
   terms: z.boolean().refine((value) => value === true, {
     message: 'Você precisa aceitar os termos!',
   }),
+}).refine((data) => data.password === data.passwordConfirmation, {
+  message: 'As senhas não são iguais!',
+  path: ['passwordConfirmation'], // path of error
 });
 
 const SignupPage = () => {
