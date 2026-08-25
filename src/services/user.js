@@ -58,4 +58,20 @@ export const UserService = {
       tokens: response.data.tokens,
     };
   },
+  /**
+   * Retorna o balance do usuário autenticado.
+   * @param {object} input
+   * @param {string} input.from - Data inicial (YYYY-MM-DD).
+   * @param {string} input.to - Data final (YYYY-MM-DD).
+   * @returns {object} - balance do usuário autenticado.
+   */
+  getBalance: async (input) => {
+    const queryParams = new URLSearchParams();
+    queryParams.set('from', input.from);
+    queryParams.set('to', input.to);
+    const response = await protectedApi.get(
+      `/users/me/balance?${queryParams.toString()}`
+    );
+    return response.data;
+  },
 };
