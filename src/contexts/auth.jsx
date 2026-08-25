@@ -8,12 +8,13 @@ import {
 
 import { toast } from '../components/ui/sonner';
 import { protectedApi, publicApi } from '../lib/axios';
+import { UserService } from '../services/user';
 
 export const AuthContext = createContext({
   user: null,
   isInitializing: true,
   login: () => {},
-  signup: () => {}, 
+  signup: () => {},
   signOut: () => {},
 });
 
@@ -35,14 +36,7 @@ export const AuthContextProvider = ({ children }) => {
   const signupMutation = useMutation({
     mutationKey: ['signup'],
     mutationFn: async (variables) => {
-      const response = await publicApi.post('/users', {
-        firstName: variables.firstName,
-        lastName: variables.lastName,
-        email: variables.email,
-        password: variables.password,
-        passwordConfirmation: variables.passwordConfirmation,
-        terms: variables.terms,
-      });
+      const response = await UserService.signup(variables);
       return response.data;
     },
   });
@@ -53,7 +47,7 @@ export const AuthContextProvider = ({ children }) => {
         email: variables.email,
         password: variables.password,
       });
-      return response.data;
+      return response;
     },
   });
   useEffect(() => {
