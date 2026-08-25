@@ -43,11 +43,8 @@ export const AuthContextProvider = ({ children }) => {
   const loginMutation = useMutation({
     mutationKey: ['login'],
     mutationFn: async (variables) => {
-      const response = await publicApi.post('/auth/login', {
-        email: variables.email,
-        password: variables.password,
-      });
-      return response;
+      const response = await UserService.login(variables);
+      return response
     },
   });
   useEffect(() => {

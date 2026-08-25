@@ -11,5 +11,12 @@ export const UserService = {
         terms: input.terms,
       });
       return response.data;
-    }
+    },
+    login: async (input) => {
+       const response = await publicApi.post('/auth/login', {
+        email: input.email,
+        password: input.password,
+      });
+      return response.data;
+    },
 }
