@@ -7,7 +7,6 @@ import {
 } from '@/constants/local-storage';
 
 import { toast } from '../components/ui/sonner';
-import { protectedApi, publicApi } from '../lib/axios';
 import { UserService } from '../services/user';
 
 export const AuthContext = createContext({
@@ -44,7 +43,7 @@ export const AuthContextProvider = ({ children }) => {
     mutationKey: ['login'],
     mutationFn: async (variables) => {
       const response = await UserService.login(variables);
-      return response
+      return response;
     },
   });
   useEffect(() => {
@@ -58,8 +57,8 @@ export const AuthContextProvider = ({ children }) => {
           LOCAL_STORAGE_REFRESH_TOKEN_KEY
         );
         if (!accessToken && !refreshToken) return;
-        const response = await protectedApi.get('/users/me');
-        setUser(response.data);
+        const response = await UserService.me();
+        setUser(response);
       } catch (error) {
         setUser(null);
         removeTokens();
