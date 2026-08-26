@@ -1,12 +1,11 @@
 import { ChevronDownIcon, LogOutIcon } from 'lucide-react';
 
-import { useAuthContext } from '@/context/AuthContext';
+import { useAuthContext } from '@/contexts/auth';
 
-import logo from '../../assets/logo.png';
-import { AvatarFallback, AvatarImage } from './avatar';
-import { Avatar } from './avatar';
-import { Button } from './button';
-import { Card, CardContent } from './card';
+import logo from '../assets/fonts/image/logo.svg';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
+import { Card, CardContent } from './ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +13,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './dropdown-menu';
+} from './ui/dropdown-menu';
 
 const Header = () => {
   const { user, signOut } = useAuthContext();
@@ -27,12 +26,17 @@ const Header = () => {
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className='space-x-1'>
-                <Avatar className='h-8 w-8'>
-                  <AvatarImage src="https://github.com/shadcn.png"/>
-                  <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+              <Button variant="outline" className="space-x-1">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>
+                    {user.firstName[0]}
+                    {user.lastName[0]}
+                  </AvatarFallback>
                 </Avatar>
-                <p className='text-sm'>{user.firstName} {user.lastName}</p>
+                <p className="text-sm">
+                  {user.firstName} {user.lastName}
+                </p>
                 <ChevronDownIcon />
               </Button>
             </DropdownMenuTrigger>

@@ -1,12 +1,12 @@
 import { format } from 'date-fns';
-import {ptBR} from 'date-fns/locale/pt-BR';
+import { ptBR } from 'date-fns/locale/pt-BR';
 import { CalendarIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from './button';
-import { Calendar } from './calendar';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import { Button } from './ui/button';
+import { Calendar } from './ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 const DatePickerWithRange = ({
   value,

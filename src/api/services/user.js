@@ -1,38 +1,20 @@
-import { protectedApi, publicApi } from '../lib/axios';
+import { protectedApi, publicApi } from '@/lib/axios';
 
 export const UserService = {
   /**
-   * Cria um novo usuário no sistema.
-   * @param {object} input
+   * Cria um novo usuário.
+   * @param {Object} input - Usuário a ser criado.
    * @param {string} input.firstName - Primeiro nome do usuário.
    * @param {string} input.lastName - Sobrenome do usuário.
-   * @param {string} input.email - E-mail do usuário.
+   * @param {string} input.email - Email do usuário.
    * @param {string} input.password - Senha do usuário.
-   * @param {string} input.passwordConfirmation - Confirmação da senha do usuário.
-   * @param {boolean} input.terms - Aceitação dos termos de uso.
-   * @returns {object} - Retorna um objeto com os dados do usuário criado e seus tokens.
-   * @return {string} response.tokens - Retorna os tokens de acesso e refresh do usuário.
+   * @returns {Object} Usuário criado.
+   * @returns {string} response.tokens - Tokens de autenticação.
    */
-
   signup: async (input) => {
     const response = await publicApi.post('/users', {
-      firstName: input.firstName,
-      lastName: input.lastName,
-      email: input.email,
-      password: input.password,
-      passwordConfirmation: input.passwordConfirmation,
-      terms: input.terms,
-    });
-    return {
-      id: response.data.id,
-      email: response.data.email,
-      firstName: response.data.first_name,
-      lastName: response.data.last_name,
-      tokens: response.data.tokens,
-    };
-  },
-  login: async (input) => {
-    const response = await publicApi.post('/auth/login', {
+      first_name: input.firstName,
+      last_name: input.lastName,
       email: input.email,
       password: input.password,
     });
@@ -45,8 +27,29 @@ export const UserService = {
     };
   },
   /**
-   * Retorna os dados do usuário autenticado.
-   * @returns {object} - Retorna um usuario autenticado com seus dados e tokens.
+   * Cria um novo usuário.
+   * @param {Object} input - Usuário a ser criado.
+   * @param {string} input.email - Email do usuário.
+   * @param {string} input.password - Senha do usuário.
+   * @returns {Object} Usuário autenteicado.
+   * @returns {string} response.tokens - Tokens de autenticação.
+   */
+  login: async (input) => {
+    const response = await publicApi.post('/users/login', {
+      email: input.email,
+      password: input.password,
+    });
+    return {
+      id: response.data.id,
+      email: response.data.email,
+      firstName: response.data.first_name,
+      lastName: response.data.last_name,
+      tokens: response.data.tokens,
+    };
+  },
+  /**
+   * Retorna o usuário autenticado.
+   * @returns {Object} Usuário autenticado.
    */
   me: async () => {
     const response = await protectedApi.get('/users/me');
@@ -55,15 +58,13 @@ export const UserService = {
       email: response.data.email,
       firstName: response.data.first_name,
       lastName: response.data.last_name,
-      tokens: response.data.tokens,
     };
   },
   /**
-   * Retorna o balance do usuário autenticado.
-   * @param {object} input
+   * Retorna o balanço do usuário autenticado.
+   * @param {Object} input - Usuário a ser criado.
    * @param {string} input.from - Data inicial (YYYY-MM-DD).
    * @param {string} input.to - Data final (YYYY-MM-DD).
-   * @returns {object} - balance do usuário autenticado.
    */
   getBalance: async (input) => {
     const queryParams = new URLSearchParams();
